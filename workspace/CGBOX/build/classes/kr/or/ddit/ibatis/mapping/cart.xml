@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="cart">
+
+	<!-- cartView.jsp에 장바구니상품테이블에 있는 것을 가져오는 쿼리 -->
+	<select id="allcart" parameterClass="int" resultClass = "allcartVO"> <!-- -->
+		
+		select a.prod_name as prod_name , a.prod_price as prod_price, a.prod_no as prod_no,
+		       b.cart_count as cart_count ,a.prod_source as prod_source , a.prod_price*b.cart_count as cart_price
+		      
+		from prod a, cart_prod b
+		where a.prod_no = b.prod_no
+		      and customer_no = #data#
+
+	</select>
+
+    <!-- 장바구니를 가지고 있는 회원인지 아닌지 확인하기 -->
+    
+    <select id = "checkcart" parameterClass = "int" resultClass="string">
+    select cart_no
+    from cart 
+    where customer_no = #data#
+    
+    </select>
+
+
+
+
+<!-- 상품장바구니나 바로구매버튼 누르면 cart테이블에 자동으로 cart_no가 insert하는 쿼리 //단,장바구니번호가 생성되지 
+		않은 고객이어야한다 -->
+
+     <!-- map에는 customer_no가 저장되어있다 -->
+ 	<insert id="insertcartno" parameterClass= "int">
+ 	    <!-- 장바구니번호가 생성되지 않은 고객에 한하여~ -->
+		insert into cart (cart_no,customer_no,cart_sum,pay_status) values(
+		(select nvl(max(cart_no)+1,1) as cart_no from cart ), #customer_no# ,0,'n')	 
+	</insert>
+	
+	<select id = "cartnoselect" parameterClass = "int">
+			select cart_no from cart where customer_no = #customer_no#
+	</select>
+	
+	
+    
+    <!-- 이미 장바구니가 있는 고객의 경우 상품을 장바구니에 인서트하고 불러온다 -->
+   
+   
+    <!--cart_prod테이블에 소비자가 선택한 상품이 insert되는 쿼리  -->
+	<insert id="insertprod" parameterClass="cartprodVO">
+		insert into cart_prod (cart_no,prod_no,customer_no,cart_count,cart_status)
+		values(#cart_no#,#prod_no#,#customer_no#,1,'N')
+	    <!-- 처음 상품 담기를 통해 cart_prod에 들어가는 수량은 1이다 -->
+	</insert>
+    
+    
+    
+    <!-- 수량 업데이트하는 쿼리 -->
+    <update id = "updatecount" parameterClass = "map">
+    update cart_prod set cart_count = #cart_count# where prod_no =#prod_no# and
+    customer_no =#customer_no#
+    </update>
+   <update id = "plusone" parameterClass = "map">
+   update cart_prod set cart_count = cart_count+1 where  prod_no =#prod_no# and
+    customer_no =#customer_no#
+   
+   </update>
+    
+    
+    <!-- cart_prod에서 고객이 이미 해당 상품을 보유하고 있으면 새로 담지말고 count를 +1해주는 쿼리 -->
+    <select id ="checkprod" parameterClass = "map" resultClass = "string">
+   select prod_no from cart_prod where customer_no =#customer_no# and prod_no =#prod_no#
+    
+    </select>
+  
+
+     <!-- CART_PROD에서 소비자가 체크한 것을 삭제하는 쿼리 -->
+	<delete id="selectdelete" parameterClass="map">
+		delete from cart_prod where prod_no = #prod_no# and customer_no= #customer_no#
+	</delete>
+    
+   
+<!-- 까지성공! -->
+
+
+
+<!--일단 전에 'N'으로 바꾸기 
+
+	 -->
+     <update id="updatestatusN" parameterClass = "int">
+     update cart_prod set cart_status = 'N' where customer_no = #customer_no#
+     </update>
+     
+     
+<!-- y로 바꾸기 -->
+<!-- 1)소비자가 출력된 cart_prod테이블 정보에서 체크박스를 체크하면 cart_status가 y로 
+		바뀐다 2)바로구매하기 버튼을 누르면 'Y'로 바뀐다 -->
+	<update id="updatestatus" parameterClass="map">
+		update cart_prod set cart_status = 'Y' where prod_no = #prod_no# and customer_no = #customer_no#
+	</update>
+	
+
+<!--cart테이블에 cart_sum 을 구해서 UPDATE하는 쿼리 ==>기본값은 0으로 설정 ==> PAY_STATUS가 'Y'되면 
+		cart_sum은 다시 0이 된다 (트리거) ==> PAY_STATUS가 'Y'되면 CART_PROD에서 해당 레코드들은 삭제된다 
+		(트리거) -->
+	<update id="cartsum" parameterClass="int">
+
+		UPDATE CART SET CART_SUM =
+		(SELECT SUM(A.CART_COUNT*B.PROD_PRICE) AS SUM
+		FROM (SELECT * FROM CART_PROD WHERE CUSTOMER_NO = #customerno# AND
+		      CART_STATUS ='Y') A ,PROD B
+	     WHERE A.PROD_NO = B.PROD_NO)
+ 
+	</update>
+
+ 
+    <!-- cartsum을 반환하는 쿼리  -->
+    <select id = "sumreturn" resultClass = "int">
+    select cart_sum from cart where customer_no = #customer_no#
+    
+    </select>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</sqlMap>

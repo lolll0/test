@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+  
+  <sqlMap namespace="FAQ">
+  	<sql id = "dynamicCondition">
+ 	    <dynamic prepend = " where">
+ 	       <isNotEmpty property= "stype" prepend=" and ">
+ 	           <isNotEmpty property = "sword">
+ 	               $stype$ like '%'||#sword#||'%'
+ 	           </isNotEmpty>                        <!-- 이 속성이 비어있지 않으면~ -->
+ 	       </isNotEmpty>
+ 	    </dynamic>
+ 	</sql>
+  	
+  	<select id="FAQList" parameterClass="map" resultClass="FAQVO">
+ 		select A.* 
+		from (
+			select rownum as rnum, B.* from (
+			select * from faq	
+			    <include refid= "dynamicCondition"/>
+			order by faq_no desc) B
+		<![CDATA[	
+		    where rownum   <= #end#) A
+		where A.rnum >= #start# 
+		]]>	
+ 	</select>
+	
+	<select id = "totalCount" parameterClass = "map"  resultClass = "int">
+   		select count(*) from faq  
+   </select>
+  	
+  	<select id="FAQDetail" parameterClass="int" resultClass="FAQVO">
+		select * from faq where faq_no=#faq_no#
+	</select>
+  	
+  	<update id="updateFAQ" parameterClass="FAQVO">
+ 		update faq set faq_no=#faq_no#, faq_question=#faq_question#,
+ 		                  faq_answer=#faq_answer#, faq_category=#faq_category#
+ 		 where faq_no=#faq_no#
+ 	</update>
+  
+  	<insert id="insertFAQ" parameterClass="FAQVO">
+		insert into faq values
+		 (faq_no_seq.nextval, #faq_question#, #faq_answer#, #faq_category#)
+		
+		<selectKey keyProperty="faq_no" resultClass="int">
+			select faq_no_seq.currval from dual
+		</selectKey>
+	
+	</insert>
+	
+	<delete id="deleteFAQ" parameterClass="int">
+ 		delete from faq where faq_no=#faq_no#
+ 	</delete>
+  
+  </sqlMap>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig 
+	PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
+     "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+
+<!--  이 xml문서는 ibatis에 대한 환경을 설정하는 문서이다. -->
+
+<sqlMapConfig>
+	
+ 	<properties resource="kr/or/ddit/ibatis/config/dbinfo.properties"/>
+ 
+ 	 <settings useStatementNamespaces = "true"/>
+ 	 
+	
+ 	 
+ 	 <typeAlias alias="nonMemberVO" type="vo.NonMemberVO" />
+ 	 <typeAlias alias="mtheaterVO" type="vo.MTheaterVO" />
+ 	 <typeAlias alias="ticketVO" type="vo.TicketVO" />
+ 	 <typeAlias alias="prodVO" type="kr.or.ddit.prod.vo.ProdVO" />
+	<typeAlias alias="mtheaterVO1" type="kr.or.ddit.mypage.vo.MtheaterVO" />
+ 	 <typeAlias alias="qnaVO" type="kr.or.ddit.mypage.vo.QnaVO" />
+ 	 
+ 	 <!-- 태정 -->
+ 	 <typeAlias alias="cartprodVO" type="cgbox.vo.CartProdVO" />
+     <typeAlias alias="allcartVO" type="cgbox.vo.allcartVO" />
+     <typeAlias alias = "selectmconVO" type = "cgbox.vo.selectmconVO"/>
+     <typeAlias alias = "minfoVO" type = "cgbox.vo.MovieInfoVO"/>
+     <typeAlias alias = "theaterVO" type = "cgbox.vo.TheaterVO"/>  
+     <typeAlias alias = "seatVO" type = "cgbox.vo.SeatVO"/>  
+     
+ 	 <!-- 혁진 -->
+	 <typeAlias alias="eventVO" type="cgbox.vo.EventVO"/>
+	 <typeAlias alias="noticeVO" type="cgbox.vo.NoticeVO"/>
+	 <typeAlias alias="FAQVO" type="cgbox.vo.FAQVO"/>
+ 	 <typeAlias alias="memberVO" type="cgbox.vo.MemberVO"/>
+ 	 <typeAlias alias="MQnAVO" type="cgbox.vo.QnAVO"/>
+
+
+	<!-- 현수오빠 중복alias-->
+	 <typeAlias alias="MovieVO" type="movie.vo.MovieVO"/>
+	
+     <!-- 태정언니 중복alias -->
+     <typeAlias alias = "reserveVO" type = "cgbox.vo.ReserveVO"/>    
+     <typeAlias alias = "screenVO" type = "cgbox.vo.ScreenVO"/>  
+ 
+ 	  
+ 	  
+ 	  <transactionManager type="JDBC">
+ 	  	<dataSource type="SIMPLE">
+ 	  		<property name="JDBC.Driver" value="${driver}"/>
+ 	  		<property name="JDBC.ConnectionURL" value="${url}"/>
+ 	  		<property name="JDBC.Username" value="${user}"/>
+ 	  		<property name="JDBC.Password" value="${pass}"/>
+ 	  	</dataSource>
+ 	  </transactionManager>
+	
+	 <!--현의-->
+	 <sqlMap resource="kr/or/ddit/ibatis/mapping/member.xml"/> 	
+	 <sqlMap resource="kr/or/ddit/ibatis/mapping/nonmember.xml"/> 	
+	 <sqlMap resource="kr/or/ddit/ibatis/mapping/mtheater.xml"/> 	
+	 <sqlMap resource="kr/or/ddit/ibatis/mapping/movie.xml"/> 	
+	 <sqlMap resource="kr/or/ddit/ibatis/mapping/screen.xml"/> 	
+	 <sqlMap resource="kr/or/ddit/ibatis/mapping/theater.xml"/> 	
+	 <sqlMap resource="kr/or/ddit/ibatis/mapping/seat.xml"/> 	
+	 <sqlMap resource="kr/or/ddit/ibatis/mapping/ticket.xml"/> 	
+	 <sqlMap resource="kr/or/ddit/ibatis/mapping/reserve.xml"/> 
+	 <sqlMap resource="kr/or/ddit/ibatis/mapping/prod.xml"/> 	
+	 <sqlMap resource="kr/or/ddit/ibatis/mapping/mypage.xml"/> 
+	 		
+	  <!-- 태정 --> 
+	 <sqlMap resource="kr/or/ddit/ibatis/mapping/cart.xml"/> 	
+     <sqlMap resource="kr/or/ddit/ibatis/mapping/pay.xml"/>	
+	 
+	 <!-- 혁진 -->
+	  <sqlMap resource="kr/or/ddit/ibatis/mapping/event.xml"/>
+	  <sqlMap resource="kr/or/ddit/ibatis/mapping/notice.xml"/>
+	  <sqlMap resource="kr/or/ddit/ibatis/mapping/FAQ.xml"/>
+	  <sqlMap resource="kr/or/ddit/ibatis/mapping/QnA.xml"/>
+	  
+	  <!-- 현수 -->
+	 <!--   <sqlMap resource="kr/or/ddit/ibatis/mapping/memberTest.xml"/> -->
+	   
+	  
+	
+</sqlMapConfig>
+

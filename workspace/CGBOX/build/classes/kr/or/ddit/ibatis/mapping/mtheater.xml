@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="mtheater">
+	<select id="selectAll" resultClass="mtheaterVO">
+		select * from mtheater
+	</select>
+	
+	<select id="selectAllByName" parameterClass="string" resultClass="mtheaterVO">
+		select * from mtheater where mtheater_name = #name#
+	</select>
+	
+	<select id="selectNameByNo" parameterClass="int" resultClass="String">
+		select mtheater_name  from  mtheater where mtheater_no = #mno#
+	</select>
+</sqlMap>

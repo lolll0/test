@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style type="text/css">
+	img{
+		height: 60px;
+		width: auto; 
+	}
+</style>
+</head>
+<body>
+<a href="javascript:kakaoLogin();"><img src="https://www.gb.go.kr/Main/Images/ko/member/certi_kakao_login.png"></a>
+<a href="https://developers.kakao.com/logout" target="_self" onClick="window.close()">로그아웃</a>
+<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+
+<script type="text/javascript">
+	// afb060f5bfe58f467e8f0fddb9673a4a
+	window.Kakao.init("afb060f5bfe58f467e8f0fddb9673a4a");
+// 	console.log(kaka.isInitialized()); // 실패시 삭제코드
+	function kakaoLogin(){
+		window.Kakao.Auth.login({
+			scope:'profile_nickname, profile_image, account_email, gender',
+			success : function(authObj){
+				console.log(authObj);
+				window.Kakao.API.request({
+					url: '/v2/user/me',  
+					success: res => {
+							const kakao_account = res.kakao_account;
+							console.log(kakao_account);
+					}
+				});
+			}
+		});
+	}
+	
+
+	
+	
+</script>
+
+<button class="api-btn" onclick="kakaoLogout()">로그아웃</button>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ticket">
+	<insert id="insertNew" parameterClass="int">
+		insert into ticket values ((select NVL(max(TICKET_NO), 0)+1 from ticket), #cno# ,'N')
+	</insert>
+	<select id="selectAllticketByNonMember" parameterClass="nonMemberVO" resultClass="ticketVO">
+	
+	select * from ticket 
+   	 where customer_no = (select customer_no from nonmember 
+                           where nonmember_birth = #nonmember_birth#
+                             and nonmember_pass = #nonmember_pass# 
+                             and nonmember_mail = #nonmember_mail#)
+	</select>
+</sqlMap>

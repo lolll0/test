@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="movie">
+	<select id="selectAll" resultClass="movieVO">
+		select * from movie
+	</select>
+	
+	<select id="selectNameByNo" parameterClass="String" resultClass="String">
+		select movie_name from movie where movie_no = #mno#
+	</select>
+	
+	<insert id="insertMovie" parameterClass="MovieVO">
+		insert into movie(movie_no, movie_name, movie_open, movie_summary,
+		movie_grade, movie_running, movie_audience, movie_trailer, movie_link, movie_img)
+		values(#movie_no#, #movie_name#, #movie_open#, #movie_summary#,
+		#movie_grade#, #movie_running#, #movie_audience#, #movie_trailer#, #movie_link#, #movie_img#)
+	</insert>
+	
+	<select id="selectImg" resultClass="MovieVO">
+		select * from movie
+	</select>
+	
+	<select id="selectMovieName" resultClass="string">
+		select movie_name from movie 
+	</select>
+	
+	<!-- 영화 상세보기 용 -->
+	<select id="DetailMovie" parameterClass="string" resultClass="MovieVO">
+		select * from movie where movie_img = #data#
+	</select>
+	
+	<select id="selectAllMovieByNo" parameterClass="String" resultClass="MovieVO">
+		select * from movie where movie_no = #mid#
+	</select>
+</sqlMap>

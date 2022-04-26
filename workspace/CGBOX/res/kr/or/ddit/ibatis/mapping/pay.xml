@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+  <sqlMap namespace = "pay">
+  
+  <!-- 회원이 보유한 상품을 리스트로 내보내주는 쿼리  -->
+  <select id = "selectmcon" parameterClass = "int" resultClass = "selectmconVO">
+  select a.myprod_no as myprod_no , a.prod_no as prod_no,
+   a.myprod_count as myprod_count ,b.prod_name as prod_name
+  from product  a , prod  b
+  where a.prod_no = b.prod_no
+      and  a.customer_no = #customer_no#
+      and  b.prod_category = '영화관람권'
+  
+  </select>
+  
+  
+  <!-- product에 해당 상품이 있는지 확인한다 -->
+  
+  <select id = "checkproduct" resultClass = "string" parameterClass = "map">
+   select myprod_count     
+     from product a, prod b
+     where a.prod_no = b.prod_no
+          and a.prod_no = #prod_no#
+          and a.customer_no =#customer_no#
+  </select>
+  
+  <!-- 원래 있는 상품이면 그냥 수량 +1한다! -->
+<update id = "updateproductcount" parameterClass = "map">
+  update product  set myprod_count = myprod_count +1  where customer_no =#customer_no# and prod_no =#prod_no#  
+</update>
+
+   
+   <!-- 가지고 있지 않은 상품이라 insert를 해준다  -->
+   <insert id = "insertmcon" parameterClass = "map">
+   
+   insert into product (myprod_no,prod_no,customer_no,myprod_count) 
+    values(
+    (select nvl(max(myprod_no)+1,1) from product) ,#prod_no#,#customer_no#,1
+    )
+   
+   </insert>
+  
+  <!--사용자가 입력한 prodno가 진짜 있는 상품인지 확인하기 -->
+  
+  <select id = "checkno" resultClass = "int"> <!-- '영화관람권 카테고리를 가진애들 리스트 ' -->
+    select prod_no
+    from prod 
+    where prod_category ='영화관람권'
+  </select>
+  
+  
+  <!-- 상품의 금액 구하기  -->
+  
+ <select id = "discountprice" resultClass = "int" parameterClass = "int">
+ select prod_price
+ from prod
+ where prod_no = #prod_no#
+ 
+ </select>
+  
+  <!-- 2d 4d imax 로 하기로 했습니다/ -->
+  <!-- 영화예약  정보 불러오기 <== 현의가 티켓제공해줌 -->
+  
+
+
+  <!-- 한꺼번에 영화 정보불러오는 쿼리
+티켓번호, 영화이름,시작시간, 끝시간 ,좌석행, 좌석열, 상영관이름(몇관),상영관 종류,상영관 가격 
+   -->
+ <select id = "minfo" parameterClass = "int" resultClass = "minfoVO">
+
+select e.movie_name, f.theater_name ,f.theater_price, g.mtheater_name, h.seat_row, h.seat_col, h.screen_start, h.screen_end, h.ticket_no, h.screen_day
+		   from movie e , theater f, mtheater g,
+		        (select a.seat_row,a.seat_col,b.movie_no, b.theater_no, b.screen_start, b.screen_end, c.ticket_no, c.screen_day
+		           from seat a, screen b,
+		                (select a.seat_no, a.screen_day, a.screen_no, b.ticket_no  
+		                   from reserve a, 
+		                        (select max(ticket_no) as ticket_no 
+		                           from ticket 
+		                          where customer_no = #customer_no# and ticket_status = 'N') b
+		                 where a.ticket_no = b.ticket_no) c
+		          where a.seat_no = C.seat_no 
+		            and b.screen_no = C.screen_no) h
+		  where e.movie_no = h.movie_no 
+		    and f.theater_no = h.theater_no 
+		    and f.mtheater_no = g.mtheater_no
+		  order by h.ticket_no desc
+ 
+ </select>
+  
+  <update id = "minusCon" parameterClass = "map">
+  update product set myprod_count = myprod_count -1 where prod_no =#prod_no#
+    and customer_no =#customer_no#
+  </update>
+
+
+<!-- 변한 수량 체크 -->
+
+    <select id = "zerocon" parameterClass= "map" resultClass= "int">
+    
+    select myprod_count from product where customer_no =#customer_no# and prod_no = #prod_no#
+    
+    </select>
+
+<!-- 0이면 삭제하기 -->
+     <delete id = "zerodelete" parameterClass= "map" >    
+     delete from product where customer_no =#customer_no# and prod_no = #prod_no#
+     </delete>
+
+
+
+  <!-- 티켓상태 결제 완료로 바꿔주기  -->
+  
+  <update id = "updateTStatus" parameterClass = "int">
+  update ticket set ticket_status = 'Y' where ticket_no = #ticket_no#
+  </update>
+  
+  <!-- 회원인지아닌지 확인하기  -->
+  
+  <select id = "checkMemID" parameterClass = "int" resultClass ="string">
+  select member_id from member where customer_no =#customer_no#
+  
+  </select>
+  
+  <!-- 스낵 결제완료된 상품을 cart_prod 에서 삭제하기  -->
+ <delete id = "paySuccessRemove" parameterClass = "map">
+ delete from cart_prod where customer_no = #customer_no#
+    and prod_no = #prod_no#
+ </delete>
+  
+  <!-- 결제 완료된것 결제리스트테이블에 인서트해주기  -->
+  <insert id = "insertpaylist" parameterClass = "map">
+  insert into paymentlist (pay_no,customer_no,prod_no,pay_amount,pay_date)
+  values(
+  (select nvl(max(pay_no)+1,1) from paymentlist) ,#customer_no#,#prod_no#,#pay_amount#,sysdate
+  )
+    
+  </insert>
+  
+  <!-- 비회원이 나중에 예매한 상황 결제하기! -->
+  
+  <select id = "minfoNonmember" parameterClass = "int" resultClass = "minfoVO">
+
+select e.movie_name, f.theater_name ,f.theater_price, g.mtheater_name, h.seat_row, h.seat_col, h.screen_start, h.screen_end, h.ticket_no, h.screen_day
+		   from movie e , theater f, mtheater g,
+		        (select a.seat_row,a.seat_col,b.movie_no, b.theater_no, b.screen_start, b.screen_end, c.ticket_no, c.screen_day
+		           from seat a, screen b,
+		                (select a.seat_no, a.screen_day, a.screen_no, b.ticket_no  
+		                   from reserve a, 
+		                        (select ticket_no 
+		                           from ticket 
+		                          where ticket_no = #ticket_no#) b
+		                 where a.ticket_no = b.ticket_no) c
+		          where a.seat_no = C.seat_no 
+		            and b.screen_no = C.screen_no) h
+		  where e.movie_no = h.movie_no 
+		    and f.theater_no = h.theater_no 
+		    and f.mtheater_no = g.mtheater_no
+		  order by h.ticket_no desc
+ 
+ </select>
+  
+  <!-- minfoNonmeber에서 cusno구하기 -->
+  
+  <select id = "nonmemcusno" parameterClass = "int" resultClass = "int">
+  select customer_no from ticket where ticket_no = #ticket_no#
+  
+  
+  </select>
+  
+  
+  
+  </sqlMap>

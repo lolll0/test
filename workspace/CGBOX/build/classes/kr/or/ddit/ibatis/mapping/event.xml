@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+ <sqlMap namespace="event">
+ 	
+	<sql id = "dynamicCondition">
+	    <dynamic prepend = " where">
+	       <isNotEmpty property= "stype" prepend=" and ">
+	           <isNotEmpty property = "sword">
+	               $stype$ like '%'||#sword#||'%'
+	           </isNotEmpty>                        <!-- 이 속성이 비어있지 않으면~ -->
+	       </isNotEmpty>
+	    </dynamic>
+ 	</sql>
+ 	
+ 	<select id="eventList" parameterClass="map" resultClass="eventVO">
+ 		select A.* 
+		from (
+			select rownum as rnum, B.* from (
+			select * from event	
+			    <include refid= "dynamicCondition"/>
+			order by event_no asc) B
+		<![CDATA[	
+		    where rownum   <= #end#) A
+		where A.rnum >= #start# 
+		]]>	
+ 	</select>
+ 	
+ 	<select id = "totalCount" parameterClass = "map"  resultClass = "int">
+   		select count(*) from member  
+   </select>
+ 	
+ 	<update id="updateEvent" parameterClass="eventVO">
+ 		update event set event_no=#event_no#, event_title=#event_title#, event_start=#event_start#, 
+ 						event_end=#event_end#, event_src=#event_src#, event_detail=#event_detail#
+ 		 where event_no=#event_no#
+ 	</update>
+ 	
+ 	<insert id="insertEvent" parameterClass="eventVO">
+ 		
+ 		insert into event(event_no, event_title, event_start, event_end, event_src, event_detail)
+ 		values (event_no_seq.nextval, #event_title#, #event_start#, #event_end#, #event_src#, #event_detail#)
+ 		
+ 		<selectKey keyProperty="event_no" resultClass="int">
+			select event_no_seq.currval from dual
+		</selectKey>
+		
+ 	</insert>
+ 	
+ 	<delete id="deleteEvent" parameterClass="int">
+ 		delete from event where event_no=#event_no#
+ 	</delete>	
+ 	
+ 	
+ </sqlMap> 
+  
+  
+  

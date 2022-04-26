@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+  
+  
+  <sqlMap namespace="QnA">
+  
+  	<select id="QnAList" resultClass="MQnAVO">
+  		select a.qna_no , b.member_name, a.qna_question ,a.qna_answer, a.qna_date
+				from qna a, member b
+			where a.customer_no = b.customer_no
+  		
+  	</select>
+  	
+  	<update id="answerQnA" parameterClass="MQnAVO">
+ 		update qna set qna_no=#qna_no#, qna_question=#qna_question#,
+ 		                  qna_answer=#qna_answer#
+ 		 where qna_no=#qna_no#
+ 	</update>
+  	
+  	<insert id="insertQnA" parameterClass="MQnAVO">
+  		insert into qna (qna_no, customer_no, qna_question, qna_date)
+  		values (qna_no_seq.nextval, #customer_no#, #qna_question#, sysdate)
+  		
+  	</insert>
+  
+  </sqlMap>
+  
+  

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+  
+  <sqlMap namespace = "member">
+  	
+  	<select id="loginMember" parameterClass="map" resultClass="memberVO">
+  		select * from member
+  		 where member_id = #id# and member_pass = #pass#
+  	</select>
+  	
+  	
+  		<sql id = "dynamicCondition">
+ 	    <dynamic prepend = " where">
+ 	       <isNotEmpty property= "stype" prepend=" and ">
+ 	           <isNotEmpty property = "sword">
+ 	               $stype$ like '%'||#sword#||'%'
+ 	           </isNotEmpty>                        <!-- 이 속성이 비어있지 않으면~ -->
+ 	       </isNotEmpty>
+ 	    </dynamic>
+ 	</sql>
+
+
+	<select id="memberList" parameterClass="map" resultClass="memberVO">
+<!-- 		select * from member -->
+<!-- 			<include refid= "dynamicCondition"/> -->
+		
+		select A.* 
+		from (
+			select rownum as rnum, B.* from (
+			select * from member	
+			    <include refid= "dynamicCondition"/>
+			order by customer_no asc) B
+		<![CDATA[	
+		    where rownum   <= #end#) A
+		where A.rnum >= #start# 
+		]]>	
+			
+	</select>
+	
+	<select id = "totalCount" parameterClass = "map"  resultClass = "int">
+   		select count(*) from member  
+   </select>
+	
+	<update id="updateMember" parameterClass="memberVO">
+		update member set grade_no=#grade_no#, member_id=#member_id#, member_name=#member_name#,
+		member_mail=#member_mail#, member_pass=#member_pass#, member_birth=#member_birth#,
+		member_tel=#member_tel#, member_point=#member_point#
+		where customer_no=#customer_no#
+	</update>
+	
+	
+	
+	<insert id="insertMember" parameterClass="memberVO">
+	insert into member 
+		(customer_no, grade_no, member_id, member_name, member_mail, member_pass, member_birth, member_tel, member_point)
+    values 
+    	(#customer_no#, #grade_no#, #member_id#, #member_name#, #member_mail#, #member_pass#, #member_birth#, #member_tel#, #member_point#)
+	</insert> 
+	
+	
+  	
+  		<select id="idCheck" resultClass="string" parameterClass="string">
+		select member_id from member where member_id = #data#
+	</select>
+	
+	
+	<!-- 저장하기 -->
+	<insert id="insertMember1" parameterClass="memberVO">
+		insert into member(customer_no,member_id, member_pass, member_name, member_birth, member_tel, member_mail, member_point, grade_no) 
+		values(cus_no_seq.currval,#member_id#, #member_pass#, #member_name#, #member_birth#, #member_tel#, #member_mail#, #member_point#, 1)
+	
+		<selectKey keyProperty="member_id" resultClass="string">
+			select member_id from member where member_id = #member_id#
+		</selectKey>
+	</insert>
+	
+	<select id="selectMaxNo" resultClass="int">
+		select cus_no_seq.nextval from dual
+	</select>
+	
+	<insert id="insertCustomerNo" parameterClass="int">
+		insert into customer values(#data#)		
+	</insert>
+  	
+  	<select id="memberInfo" parameterClass="int" resultClass="memberVO">
+  		select customer_no, member_name, member_mail, member_tel
+		  from member
+         where customer_no = #customer_no#
+  	</select>
+  	
+  	<select id="selectKakao" parameterClass="string" resultClass="memberVO">
+  		select * from member where member_id = #m# and member_mail=#m#
+  	</select>
+  	
+  </sqlMap>

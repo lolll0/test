@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="reserve">
+	<insert id="insertNew" parameterClass="reserveVO">
+		insert into reserve values(#seat_no#, #screen_no#, (select nvl(max(ticket_no), 0) from ticket), #screen_day#)
+	</insert>
+	<select id="selectReserveByTicket" parameterClass="int" resultClass="reserveVO">
+		select * from reserve where TICKET_NO = #no#
+	</select>
+	
+	<select id="selectAllByscno" parameterClass="int" resultClass="reserveVO">
+		select * from reserve where screen_no = #sno#
+	</select>
+</sqlMap>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="prod">
+
+	<select id="getAllProd" parameterClass="string" resultClass="prodVO">
+		select * from prod where prod_category like '%'||#category#||'%'
+	</select>
+	
+	<select id="cartCount" parameterClass="int" resultClass="int">
+		select count(*) from cart_prod where customer_no = #customer_no#
+	</select>
+	
+	<select id="findCart" parameterClass="int" resultClass="int">
+		select count(*) from cart where customer_no = #customer_no#
+	</select>
+	
+	<insert id="insertCart" parameterClass="int">
+		insert into cart(cart_no, customer_no, cart_sum, pay_status) 
+			values(cart_no_seq.nextval,#customer_no#,0,'N')
+	</insert>
+	
+	<insert id="insertCartprod" parameterClass="map">
+		insert into cart_prod(cart_no, prod_no, customer_no, cart_count,cart_status) 
+			values((select cart_no from cart where customer_no= #customer_no#), #prod_no#, #customer_no#, 1, 'N')
+	</insert>
+	
+	<insert id="insertProd" parameterClass="prodVO">
+		insert into prod (prod_no, prod_name, prod_category, prod_price, prod_detail, prod_source)
+		values (prod_seq.nextval, #prod_name#, #prod_category#, 
+		    #prod_price#, #prod_detail#, #prod_source#)
+		    
+		<selectKey keyProperty="prod_no" resultClass="int">
+			select prod_seq.currval from dual
+		</selectKey>    
+		
+	</insert>
+	
+	<update id="updateProd" parameterClass="prodVO">
+ 		update prod set prod_no=#prod_no#, prod_name=#prod_name#, prod_category=#prod_category#, 
+ 						prod_price=#prod_price#, prod_detail=#prod_detail#, prod_source = #prod_source#
+ 		 where prod_no=#prod_no#
+ 	</update>
+ 	
+ 	<delete id="deleteProd" parameterClass="int">
+ 		delete from prod where prod_no=#prod_no#
+ 	</delete>	
+ 	
+ 	
+</sqlMap>
+
+
+
+
+
+
+
+
+
+

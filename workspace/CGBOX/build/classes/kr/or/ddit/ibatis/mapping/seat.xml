@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+  
+<sqlMap namespace="seat">
+	<select id="selectSeatNo" parameterClass="seatVO" resultClass="int">
+		select seat_no from seat WHERE seat_row = #seat_row# and seat_col = #seat_col# and theater_no = #theater_no#
+	</select>
+	
+	<select id="selectSeatByNo" parameterClass="int" resultClass="seatVO">
+		select seat_row, seat_col from seat where SEAT_NO = #no#
+	</select>
+	
+	<select id="selectAllBytno" parameterClass="int" resultClass="seatVO">
+		select * from seat where THEATER_NO = #no#
+	</select>	
+</sqlMap>

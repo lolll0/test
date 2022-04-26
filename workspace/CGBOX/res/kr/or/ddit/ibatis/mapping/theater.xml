@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="theater">
+	<select id="selectAllByMtheaterNo" parameterClass="int" resultClass="theaterVO">
+		select * from theater where mtheater_no = #no#
+	</select>
+	
+	<select id="selectAllByTheaterNo" parameterClass="int" resultClass="theaterVO">
+		select * from theater where theater_no = #tno#
+	</select>
+	
+	<select id="selectTheaterNoByScreenNo" parameterClass="int" resultClass="int">
+		select theater_no from screen where screen_no = #sno#
+	</select>
+	
+	<select id="selectTheaterPriceByMnoAndTname" parameterClass="map" resultClass="int">
+		select theater_price from theater 
+    		where MTHEATER_NO = (select MTHEATER_NO FROM MTHEATER WHERE MTHEATER.MTHEATER_NAME = #mname#) 
+     		  and THEATER_NAME = #tname#
+	</select>
+</sqlMap>

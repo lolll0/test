@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="mypage">
+	
+	<select id="findMember" parameterClass="string" resultClass="memberVO">
+		select * from member where customer_no = #customer_no#
+	</select>
+	
+	<select id="findGrade" parameterClass="string" resultClass="string">
+		select grade_name from grade where grade_no = #grade_no#
+	</select>
+	
+	<select id="findProduct" parameterClass="String" resultClass="int">
+		select nvl(sum(MYPROD_COUNT),0) from product where customer_no = #customer_no#
+	</select>
+	
+	<select id="findPoint" parameterClass="String" resultClass="int">
+		select member_point from member where customer_no = #customer_no#
+	</select>
+	
+	<select id="selectAllMtheater" resultClass="mtheaterVO1">
+		select * from mtheater
+	</select>
+	
+	<select id="findFavorite" parameterClass="String" resultClass="string">
+		select b.mtheater_name 
+  		  from (select MTHEATER_NO 
+          from favorite 
+         where customer_no =#customer_no#) a, 
+         mtheater b 
+         where a.mtheater_no = b.mtheater_no
+	</select>
+	
+	<update id="updateFavorite" parameterClass="map">
+		update favorite 
+   		   set mtheater_no = (select mtheater_no from mtheater where mtheater_name = #mtheater_name#)
+   		 where customer_no = #customer_no#
+	</update>
+	
+	<insert id="insertFavorite" parameterClass="map">
+		insert into favorite values(#customer_no#, (select mtheater_no from mtheater where mtheater_name = #mtheater_name#))
+	</insert>
+	
+	<update id="updateMember" parameterClass="memberVO">
+		update member 
+		   set member_name = #member_name#,
+		       member_mail = #member_mail#,
+		       member_pass = #member_pass#,
+		       member_birth = #member_birth#,
+		       member_tel = #member_tel#
+	     where customer_no = #customer_no#
+	</update>
+	
+	
+	<delete id="deleteFavorite" parameterClass="string">
+		delete from favorite where customer_no = #customer_no#
+	</delete>
+	
+	<delete id="deleteMember" parameterClass="string">
+        declare begin
+			delete from ticket where customer_no = #customer_no#;
+			 delete from review where customer_no = #customer_no#;
+			 delete from qna where customer_no = #customer_no#;
+			 delete from product where customer_no = #customer_no#;
+			 <!-- delete from paymentlist where customer_no = #customer_no#; -->
+			 delete from favorite where customer_no = #customer_no#;
+			 delete from cart_prod where customer_no = #customer_no#;
+			 delete from cart where customer_no = #customer_no#;
+			 delete from member where customer_no = #customer_no#;
+			 delete from customer where customer_no = #customer_no#;
+  		end;
+	</delete>
+	
+	<select id="reserveList" parameterClass="string" resultClass="HashMap">
+		select e.movie_name, f.theater_name ,f.theater_price, g.mtheater_name, h.seat_row, h.seat_col, h.screen_start, h.screen_end, h.ticket_no, h.screen_day
+		   from movie e , theater f, mtheater g,
+		        (select a.seat_row,a.seat_col,b.movie_no, b.theater_no, b.screen_start, b.screen_end, c.ticket_no, c.screen_day
+		           from seat a, screen b,
+		                (select a.seat_no, a.screen_day, a.screen_no, b.ticket_no  
+		                   from reserve a, 
+		                        (select ticket_no 
+		                           from ticket 
+		                          where customer_no = #customer_no#) b
+		                 where a.ticket_no = b.ticket_no) c
+		          where a.seat_no = C.seat_no 
+		            and b.screen_no = C.screen_no) h
+		  where e.movie_no = h.movie_no 
+		    and f.theater_no = h.theater_no 
+		    and f.mtheater_no = g.mtheater_no
+		  order by h.ticket_no desc
+	</select>
+	
+	<select id="haveProduct" parameterClass="string" resultClass="HashMap">
+		select a.prod_no, a.prod_name, b.myprod_count 
+  		  from prod a,
+			   (select * 
+			      from product 
+			     where customer_no = #customer_no#) b
+		 where a.prod_no = b.prod_no
+	</select>
+	
+	<select id="reviewList" parameterClass="string" resultClass="HashMap">
+		select b.movie_name, a.review_grade, a.review_content, a.movie_no, a.customer_no 
+		  from review a , movie b
+		 where a.movie_no = b.movie_no
+		   and a.customer_no = #customer_no#
+	</select>
+	
+	<delete id="deleteReview" parameterClass="map">
+		delete from review where movie_no = #movie_no# and customer_no = #customer_no#
+	</delete>
+	
+	<select id="getQna" parameterClass="string" resultClass="qnaVO">
+		select * from qna where customer_no = #customer_no#
+	</select>
+	
+	<delete id="deleteQna" parameterClass="string">
+		delete from qna where qna_no= #qna_no#  
+	</delete>
+	
+	<select id="payList" parameterClass="String" resultClass="HashMap">
+		select b.pay_no, b.customer_no, b.prod_no, b.pay_amount, b.pay_date, a.prod_name
+          from prod a,
+               (select *
+                  from paymentlist
+   			     where customer_no = #customer_no#) b
+         where a.prod_no = b.prod_no
+	</select>
+	
+</sqlMap>
+
+
+
+
+
+
+
+
+
+

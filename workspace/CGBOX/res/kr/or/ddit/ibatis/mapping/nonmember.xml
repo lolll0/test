@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+  
+<sqlMap namespace="nonmember">
+
+
+	<!-- 1) 비회원을 insert하기 위해 회원번호 추가 -->
+	<insert id="insertCustomer" parameterClass="int">
+		insert into customer values(#num#)
+	</insert>
+	
+	<!-- 2) 비회원을 insert-->
+	<insert id="insertNonMember" parameterClass="nonMemberVO">
+		insert into nonmember 
+		  values(
+		    #customer_no#,
+			#nonmember_birth#,
+			#nonmember_pass#,
+			#nonmember_mail#
+		  ) 		
+	</insert>
+	
+	<select id="selectMaxCustomer" resultClass="int">
+		select max(customer_no) from customer
+	</select>
+	
+	<select id="selectNonmemberCount" parameterClass="nonMemberVO" resultClass="int">
+		select count(*) from nonmember 
+		where nonmember_birth = #nonmember_birth# 
+		  and nonmember_mail = #nonmember_mail# 
+		  and nonmember_pass = #nonmember_pass#
+	</select>
+	
+	<select id="selectNonPass" parameterClass="nonMemberVO" resultClass="string">
+		select nonmember_pass from nonmember where nonmember_birth = #nonmember_birth# and nonmember_mail = #nonmember_mail#
+	</select>
+	
+	
+</sqlMap>

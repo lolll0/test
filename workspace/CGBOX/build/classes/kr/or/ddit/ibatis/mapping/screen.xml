@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+  "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="screen">
+	<!-- MOVIE_NO(영화번호)와 THEATER_NO(상영관번호)를 받아오는 vo객체를 파라미터로 입력한다-->
+	<select id="selectScreenList" parameterClass="screenVO" resultClass="screenVO">
+		select * from screen where movie_no = #movie_no# and theater_no = #theater_no#
+	</select>
+	
+	<select id="selectAllByno" parameterClass="int" resultClass="screenVO">
+		select * from screen where screen_no = #no#
+	</select>
+</sqlMap>
